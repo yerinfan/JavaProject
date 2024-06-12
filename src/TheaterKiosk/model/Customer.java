@@ -38,7 +38,7 @@ public class Customer {
 			BufferedReader br = new BufferedReader(fr);
 			String idStr;
 			while ((idStr = br.readLine()) != null && !idStr.equals("")) {
-				String userName = br.readLine();
+				String userName = idStr;
 				int TicketId = Integer.parseInt(br.readLine());
 				Customers.add(new Customer(userName, TicketId));
 			}
