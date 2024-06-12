@@ -41,7 +41,7 @@ public class MovieList {
 			BufferedReader br = new BufferedReader(fr);
 			String idStr;
 			while ((idStr = br.readLine()) != null && !idStr.equals("")) {
-				String movieName = br.readLine();
+				String movieName = idStr;
 				int price = Integer.parseInt(br.readLine());
 				movies.add(new Movie(movieName, price));
 			}
