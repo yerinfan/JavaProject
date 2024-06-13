@@ -119,7 +119,7 @@ public class TheaterKioskController {
 				return true;
 			}
 		} else {
-			if (ticketTime == 1 || ticketTime == 3 || ticketTime == 7) {
+			if (ticketTime == 1 || ticketTime == 3 || ticketTime == 5) {
 				return true;
 			}
 		}
