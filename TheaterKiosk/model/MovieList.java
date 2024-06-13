@@ -42,7 +42,6 @@ public class MovieList {
 			String nameStr;
 			while ((nameStr = br.readLine()) != null && !nameStr.equals("")) {
 				String movieName = nameStr;
-				System.out.println(movieName);
 				int price = Integer.parseInt(br.readLine());
 				
 				movies.add(new Movie(movieName, price));
