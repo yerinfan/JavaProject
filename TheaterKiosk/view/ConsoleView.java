@@ -25,7 +25,7 @@ public class ConsoleView {
 	}
 
 	public void displayWelcome() {
-		String welcome = "*****************************************\n" + "*    Welcome to Poly Theater Kiosk     *\n"
+		String welcome = "*****************************************\n" + "*     Welcome to Poly Theater Kiosk     *\n"
 				+ "*****************************************";
 		System.out.println(welcome);
 	}
