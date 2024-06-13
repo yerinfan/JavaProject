@@ -1,6 +1,6 @@
-imcetption
+InsideOut2
 15000
-another_movie_title
+Drive
 20000
-other_movie
-18000
+집으로
+9999
