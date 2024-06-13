@@ -1,24 +1,53 @@
 package TheaterKiosk.model;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
 public class Customer {
-    private String customerId;
+	public ArrayList<Customer> Customers = new ArrayList<>();
+	private int ticketId;
+    private int lastId;
     private String name;
-
-    public Customer(String customerId, String name) {
-        this.customerId = customerId;
-        this.name = name;
+    private boolean isSaved = false;
+    private String CustomerFileName = "Customer.txt";
+    
+    public int getTicketId() {
+        return ticketId;
     }
 
-    public String getCustomerId() {
-        return customerId;
-    }
-
-    public String getName() {
+	public String getName() {
         return name;
     }
 
-	public static MovieCartItem getMovieTicketByTicketNo(MovieCartItem mMovieCartItem, int ticketNum) {
+	public Customer() throws IOException {
+		loadBookedTicketFromFile();
+		isSaved = true;
+	}
+	
+	public Customer(String userName, int ticketId) {
+		name = userName;
+		this.ticketId = ticketId;
+	}
+
+	private void loadBookedTicketFromFile() {
+		FileReader fr;
+		try {
+			fr = new FileReader(CustomerFileName);
+			BufferedReader br = new BufferedReader(fr);
+			String nameStr;
+			while ((nameStr = br.readLine()) != null && !nameStr.equals("")) {
+				String userName = nameStr;
+				int TicketId = Integer.parseInt(br.readLine());
+				Customers.add(new Customer(userName, TicketId));
+			}
+			fr.close();
+			br.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
-		return null;
 	}
 }

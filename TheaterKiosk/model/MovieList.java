@@ -10,11 +10,12 @@ import java.util.ArrayList;
 public class MovieList {
 	ArrayList<Movie> movies = new ArrayList<>();
 	final int MAX_QUANTITY = 10;
-	private String movieFilename = "movielist.txt";
+	private String movieFilename = "MovieList.txt";
 	private int lastId;
 	private boolean isSaved;
-
+	
 	public MovieList() throws IOException {
+		
 		loadMovieListFromFile();
 		generateLastId();
 		isSaved = true;
@@ -38,18 +39,19 @@ public class MovieList {
 		try {
 			fr = new FileReader(movieFilename);
 			BufferedReader br = new BufferedReader(fr);
-			String idStr;
-			while ((idStr = br.readLine()) != null && !idStr.equals("")) {
-				int code = Integer.parseInt(idStr);
-				String movieName = br.readLine();
+			String nameStr;
+			while ((nameStr = br.readLine()) != null && !nameStr.equals("")) {
+				String movieName = nameStr;
+				System.out.println(movieName);
 				int price = Integer.parseInt(br.readLine());
-				movies.add(new Movie(code, movieName, price));
+				
+				movies.add(new Movie(movieName, price));
 			}
 			fr.close();
 			br.close();
 
 		} catch (FileNotFoundException | NumberFormatException e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
@@ -116,20 +118,12 @@ public class MovieList {
 			return "No times available";
 		}
 	}
-
-	public void addBook(int movieCode, String movieName, int price) {
-
-		Movie movie = new Movie(++lastId, movieName, price);
-		movies.add(movie);
-		isSaved = false;
-	}
 	
 	public void saveMovieList2File() {
 
 		try {
 			FileWriter fw = new FileWriter(movieFilename);
 			for (Movie movie : movies) {
-				fw.write(movie.getMovieCode() + "\n");
 				fw.write(movie.getMovieName() + "\n");
 				fw.write(movie.getPrice() + "\n");
 			}
@@ -140,16 +134,23 @@ public class MovieList {
 		}
 	}
 
-	public boolean isTimeAvailable(int movieCode, int ticketTime) {
-		if (movieCode % 2 == 0) {
-			if (ticketTime == 2 || ticketTime == 4 || ticketTime == 6) {
-				return true;
-			}
-		}else {
-			if (ticketTime == 1 || ticketTime == 3 || ticketTime == 7) {
-				return true;
-			}
-		}
-		return false;
+	public void addMovie(String movieName, int price) {
+
+	    if (lastId == MAX_QUANTITY) {
+	        System.out.println("영화 목록이 가득 찼습니다.");
+	        return;
+	    }
+
+	    Movie movie = new Movie(movieName, price);
+	    int newMovieCode = generateNewMovieCode();
+	    movie.setMovieCode(newMovieCode);
+
+	    movies.add(movie);
+	    isSaved = false;
 	}
+
+	private int generateNewMovieCode() {
+	    return movies.size() + 1;
+	}
+
 }

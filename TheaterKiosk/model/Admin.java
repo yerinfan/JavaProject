@@ -1,19 +1,13 @@
 package TheaterKiosk.model;
 
-public class Admin {
-    private String adminId;
-    private String name;
+public class Admin extends User {
 
-    public Admin(String adminId, String name) {
-        this.adminId = adminId;
-        this.name = name;
-    }
-
-    public String getAdminId() {
-        return adminId;
-    }
-
-    public String getName() {
-        return name;
-    }
+	private String id="admin";
+	private String password="1234";
+	
+	public boolean login(String id, String password) {
+		if (this.id.equals(id) && this.password.equals(password))
+			return true;
+		return false;
+	}
 }

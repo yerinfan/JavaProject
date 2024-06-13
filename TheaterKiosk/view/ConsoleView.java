@@ -1,22 +1,16 @@
 package TheaterKiosk.view;
 
 import java.util.Scanner;
-import java.util.StringTokenizer;
 
-import TheaterKiosk.model.MovieCart;
+import TheaterKiosk.model.Customer;
+import TheaterKiosk.model.MovieCartItem;
 import TheaterKiosk.model.MovieList;
 import TheaterKiosk.model.Theater;
-import TheaterKiosk.model.Tickets;
 
 public class ConsoleView {
 
 	public void displayMessage(String message) {
 		System.out.println(message);
-	}
-
-	public void displayTicketInfo(MovieCart ticket) {
-		System.out.println("Ticket Information:");
-		System.out.println(ticket);
 	}
 
 	public void displayMovies(MovieList mMovieList) {
@@ -26,11 +20,8 @@ public class ConsoleView {
 		}
 	}
 
-	public void displayMovieTimes(MovieList mMovieList, int movieTimes) {
-		StringTokenizer st = new StringTokenizer(mMovieList.getMovieTimes(movieTimes) , ", ");
-		for (int i = 0; i < 3; i++) {
-			System.out.print(st.nextToken() + " ");
-		}
+	public void displayMovieTimes(MovieList mMovieList, int movieCode) {
+		System.out.print(mMovieList.getMovieTimes(movieCode));
 	}
 
 	public void displayWelcome() {
@@ -52,20 +43,6 @@ public class ConsoleView {
 		return menu;
 	}
 
-	// 숫자 입력 받기 (숫자가 아닌 문자를 넣으면 예외 처리하고 다시 입력받기)
-		public int readNumber(String message) {
-			if (message != null || !message.equals(""))
-				System.out.print(message);
-			
-			Scanner input = new Scanner(System.in);
-			try {
-				int number = input.nextInt();
-				return number;
-			} catch (Exception e) {
-				System.out.print("숫자를 입력하세요 :");
-				return readNumber(message);
-			}
-		}
 
 	private void displayMessage(String[] menuList) {
 		System.out.println("=========================================");
@@ -76,12 +53,85 @@ public class ConsoleView {
 		System.out.println("=========================================");
 	}
 
-	// 입력된 문자열 출력
-		public void showMessage(String message) {
-			System.out.println(message);
+
+	 public void showTheaterChair(MovieCartItem movieCartItem, int movieCode, int ticketTime) {
+	        Theater theater = movieCartItem.getTheater(movieCode, ticketTime);
+	        if (theater == null) {
+	            System.out.println("해당 영화 코드와 시간에 대한 극장 정보가 없습니다.");
+	            return;
+	        }
+
+	        boolean[][] seatAvailability = theater.getSeatAvailability();
+	        char[] rowLabels = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+
+	        System.out.print("  ");
+	        for (int k = 1; k <= seatAvailability[0].length; k++) {
+	            System.out.print(k + " ");
+	        }
+	        System.out.println();
+
+	        for (int i = 0; i < seatAvailability.length; i++) {
+	            System.out.print(rowLabels[i] + " ");
+	            for (int j = 0; j < seatAvailability[i].length; j++) {
+	                System.out.print(seatAvailability[i][j] ? "O " : "X ");
+	            }
+	            System.out.println();
+	        }
+	    }
+
+	public void bookedTicket(MovieCartItem mMovieCartItem){
+		System.out.println("======================");
+		System.out.println("========예약정보========");
+		System.out.println("==========1관==========");
+		System.out.println("[영화명 = " + mMovieCartItem.getMovie().getMovieName() + "]");
+		System.out.println("[상영 시간 = " + mMovieCartItem.getTicketTime() + " PM]");
+		System.out.println("[좌석 번호 = " + mMovieCartItem.getSeatNum() + "]");
+		System.out.println("======================");
+	}
+
+	public void bookedTicket(Customer mCustomer, int ticketNum) {
+		System.out.println("======================");
+		System.out.println("======="+ ticketNum +"님!=======");
+		System.out.println("==========1관==========");
+		System.out.println("[영화명 = 집이 최고야(더빙)]");
+		System.out.println("===[상영 시간 = 8 PM]===");
+		System.out.println("====[좌석 번호 = F6]====");
+		System.out.println("======================");
+
+	}
+
+	// 입력된 문자열을 입력했을 때만 true를 반환하는 confirm용
+		public boolean askConfirm(String message, String yes) {
+			
+			System.out.print(message);
+			
+			Scanner input = new Scanner(System.in);
+			if (input.nextLine().equals(yes)) return true;
+			return false;
 			
 		}
+
+		// 숫자 입력 받기 (숫자가 아닌 문자를 넣으면 예외 처리하고 다시 입력받기)
+		public int readNumber(String message) {
+			if (message != null || !message.equals(""))
+				System.out.print(message);
+
+			Scanner input = new Scanner(System.in);
+			try {
+				int number = input.nextInt();
+				return number;
+			} catch (Exception e) {
+				System.out.print("숫자를 입력하세요 :");
+				return readNumber(message);
+			}
+		}
 		
+		// 입력된 문자열 출력
+		public void showMessage(String message) {
+			System.out.println(message);
+
+		}
+
 		// 문자열 입력 받기
 		public String inputString(String msg) {
 			Scanner in = new Scanner(System.in);
@@ -89,24 +139,18 @@ public class ConsoleView {
 			return in.nextLine();
 		}
 
-		public void bookedTicket(Tickets tickets, int ticketNum) {
-			
-			System.out.println(tickets.getTicket(ticketNum));
-		}
+		// MovieList에 있는 영화코드 선택하기
+		public int selectMovie(MovieList mMovieList) {
 		
-		 public void showTheaterChair(Theater theater) {
-		        int numRows = theater.getNumRows();
-		        int numColumns = theater.getNumColumns();
-
-		        for (int i = 0; i < numRows; i++) {
-		            for (int j = 0; j < numColumns; j++) {
-		                if (theater.isSeatAvailable(i, j)) {
-		                    System.out.print("O "); // Available seat
-		                } else {
-		                    System.out.print("X "); // Occupied seat
-		                }
-		            }
-		            System.out.println(); // Move to the next row
-		        }
-		    }
+			int movieCode;
+			boolean result;
+			do {
+				movieCode = readNumber("영화의 코드를 입력하세요 : ");
+				result = mMovieList.isValidMovie(movieCode);
+				if (!result)
+					System.out.print("잘못된 영화 코드입니다.");
+			} while (!result);
+			
+			return movieCode;
+		}
 }

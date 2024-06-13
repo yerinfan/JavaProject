@@ -4,10 +4,10 @@ public class Movie {
 	private int movieCode;
 	private String movieName;
     private int price;
-
-	public Movie(int movieCode, String movieName, int price) {
-		super();
-		this.movieCode = movieCode;
+    private static int counter = 0;
+    
+	public Movie(String movieName, int price) {
+		this.movieCode = ++counter;
 		this.movieName = movieName;
 		this.price = price;
 	}
@@ -38,8 +38,8 @@ public class Movie {
 
 	@Override
 	public String toString() {
-		return "Movie [" + movieCode + ". , 영화명 = " + movieName
-				+ ", 가격 =" + price + "원]";
+		return "[" + movieCode + ". 영화명 = " + movieName
+				+ ", 가격 = " + price + "원]";
 	}
 	
 	
