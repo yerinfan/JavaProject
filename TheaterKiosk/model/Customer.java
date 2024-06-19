@@ -5,13 +5,29 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Customer {
+public class Customer extends User{
 	public ArrayList<Customer> Customers = new ArrayList<>();
 	private int ticketId;
     private int lastId;
     private String name;
     private boolean isSaved = false;
     private String CustomerFileName = "Customer.txt";
+    private String address;
+	private String email;
+	
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+    
     
     public int getTicketId() {
         return ticketId;

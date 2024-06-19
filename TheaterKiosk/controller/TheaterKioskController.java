@@ -3,7 +3,9 @@ package TheaterKiosk.controller;
 import java.io.IOException;
 
 import TheaterKiosk.model.Admin;
+import TheaterKiosk.model.Cart;
 import TheaterKiosk.model.Customer;
+import TheaterKiosk.model.FoodStorage;
 import TheaterKiosk.model.Movie;
 import TheaterKiosk.model.MovieCartItem;
 import TheaterKiosk.model.MovieList;
@@ -16,24 +18,32 @@ public class TheaterKioskController {
 	Customer mCustomer;
 	Admin mAdmin;
 	MovieCartItem mMovieCartItem;
+	FoodStorage mFoodStorage;
+	Cart mCart;
 
-	String[] menuList = { "0. 종료", "1. 예매 티켓 출력", "2. 티켓 예매하기", "3. 관리자 모드" };
+	String[] menuList = { "0. 종료", "1. 예매 티켓 출력", "2. 티켓 예매하기", "3. 매장 주문하기", "4. 관리자 모드" };
+
+	String[] foodMenuList = { "0. 뒤로가기", "1. 메뉴 정보 보기", "2. 장바구니 보기", "3. 장바구니에 메뉴 추가", "4. 장바구니 메뉴 삭제",
+			"5. 장바구니 메뉴 수량 변경", "6. 장바구니 비우기", "7. 주문" };
 
 	String[] adminMenuList = {
 
-			"0. 종료", "1. 영화 정보 추가", "2. 영화 정보 삭제", "3. 영화 정보 보기", "4. 영화 정보 파일 저장"
+			"0. 뒤로가기", "1. 영화 정보 추가", "2. 영화 정보 삭제", "3. 영화 정보 보기", "4. 영화 정보 파일 저장", "5. 식품 정보 추가", "6. 도서 정보 삭제",
+			"7. 도서 정보 보기", "8. 도서 정보 파일 저장"
 
 	};
-	
+
 	int menu;
 
-	public TheaterKioskController(MovieList movieList, MovieCartItem movieCartItem, ConsoleView view)
+	public TheaterKioskController(MovieList movieList, MovieCartItem movieCartItem,FoodStorage foodStorage, Cart cart, ConsoleView view)
 			throws IOException {
 		this.view = view;
 		mMovieList = movieList;
 		mMovieCartItem = movieCartItem;
 		mAdmin = new Admin();
 		mCustomer = new Customer();
+		mFoodStorage = foodStorage;
+		mCart = cart;
 	}
 
 	public void start() throws Exception {
@@ -45,12 +55,109 @@ public class TheaterKioskController {
 			switch (menu) {
 			case 1 -> ticketIssuance(); // 티켓 발권
 			case 2 -> bookingTicket(); // 티켓 예매하기
-			case 3 -> adminMode();
+			case 3 -> orderFood(); // 매장 내 음식 구매
+			case 4 -> adminMode();
 			case 0 -> end();
 			default -> view.displayMessage("잘못된 메뉴 번호입니다.");
 			}
 		} while (menu != 0);
 
+	}
+
+	private void orderFood() throws IOException {
+		registerCustomerInfo();
+
+		int menu;
+
+		do {
+			menu = view.selectMenu(foodMenuList);
+
+			switch (menu) {
+			case 1 -> viewFoodInfo();
+			case 2 -> viewCart();
+			case 3 -> addFood2Cart();
+			case 4 -> deleteFoodInCart();
+			case 5 -> updateFoodInCart();
+			case 6 -> resetCart();
+			case 7 -> order();
+			case 8 -> adminMode();
+			default -> view.showMessage("잘못된 메뉴 번호입니다.");
+			}
+		} while (menu != 0);
+	}
+
+	private void order() {
+		viewOrderInfo();
+		if (view.askConfirm("주문하려면 yes를 입력하세요 : ", "yes") ) {
+			// 주문 처리 -> 장바구니 초기화
+			mCart.resetCart();
+			
+		}
+	}
+
+	private void viewOrderInfo() {
+		view.displayCart(mCart);
+		
+	}
+
+	private void resetCart() {
+		view.displayCart(mCart);
+
+		if (!mCart.isEmpty()) {
+			if (view.askConfirm(">> 장바구니를 비우려면 yes를 입력하세요 : ", "yes")) {
+				mCart.resetCart();
+				view.showMessage(">> 장바구니를 비웠습니다.");
+			}
+		}
+	}
+
+	private void updateFoodInCart() {
+		// 장바구니 보여주기
+		view.displayCart(mCart);
+		if (!mCart.isEmpty()) {
+			// 도서 ID 입력 받기
+			int foodId = view.selectFoodId(mCart);
+			// 수량 입력 받기
+			int quantity = view.inputQuantity(0, mFoodStorage.getMaxQuantity());
+			// 도서 ID에 해당하는 cartItem 가져와서 cartItem quantity set 수량
+			mCart.updateQuantity(foodId, quantity);
+		}
+	}
+
+	private void deleteFoodInCart() {
+		// 장바구니 보여주기
+		view.displayCart(mCart);
+		if (!mCart.isEmpty()) {
+			// 도서 ID 입력 받기
+			int foodId = view.selectFoodId(mCart);
+			if (view.askConfirm(">> 해당 메뉴를 삭제하려면 yes를 입력하세요 : ", "yes")) {
+				// 해당 도서 ID의 cartItem 삭제
+				mCart.deleteItem(foodId);
+				view.showMessage(">> 해당 메뉴를 삭제했습니다.");
+			}
+		}
+	}
+
+	private void addFood2Cart() {
+		view.displayFoodInfo(mFoodStorage);
+		int foodId = view.selectFoodfId(mFoodStorage);
+		mCart.addItem(mFoodStorage.getFoodById(foodId));
+		view.showMessage(">>장바구니에 메뉴를 추가하였습니다.");
+	}
+
+	private void viewCart() {
+		view.displayCart(mCart);
+	}
+
+	private void viewFoodInfo() {
+		view.displayFoodInfo(mFoodStorage);
+	}
+
+	private void registerCustomerInfo() throws IOException {
+		mCustomer = new Customer();
+		if (view.askConfirm("폴리텍 회원이신가요? (\"yes\") : ", "yes")) {
+			view.inputCustomerInfo(mCustomer);
+		}
 	}
 
 	// 환영 인사
@@ -134,7 +241,7 @@ public class TheaterKioskController {
 		// 번호 여부 확인
 		if (checkTicket(TicketNum)) {
 			view.bookedTicket(mCustomer, TicketNum); // 있을 경우 영화티켓(영화명, 시간, 관, 좌석번호 출력)
-			
+
 			// 종료
 			end();
 		} else {
@@ -172,10 +279,23 @@ public class TheaterKioskController {
 			case 2 -> deleteMovieInList();
 			case 3 -> view.displayMovies(mMovieList);
 			case 4 -> saveMovieList2File();
+			case 5 -> addFood2Storage();
+			case 6 -> deleteFoodInStorage();
+			case 7 -> viewFoodInfo();
+			case 8 -> saveFoodList2File();
 			case 0 -> adminEnd();
 			default -> view.showMessage("잘못된 메뉴 번호입니다.");
 			}
 		} while (menu != 0);
+	}
+
+	private void saveFoodList2File() {
+		if (mFoodStorage.isSaved()) {
+			view.showMessage("메뉴 정보가 파일과 동일합니다.");
+		} else {
+			mFoodStorage.saveFoodList2File();
+			view.showMessage("메뉴 정보를 저장하였습니다.");
+		}
 	}
 
 	// 관리자 인증 (id, password 확인)
@@ -185,7 +305,33 @@ public class TheaterKioskController {
 		String password = view.inputString("관리자 password : ");
 		return mAdmin.login(id, password);
 	}
+	
+	private void addFood2Storage() {
+		view.showMessage("새로운 음식을 추가합니다.");
+		
+		mFoodStorage.addFood(view.inputString("메뉴 이름 : "),
+				view.readNumber("가격 : "));
 
+	}
+
+	private void deleteFoodInStorage() {
+		if (mFoodStorage.isEmpty()) {
+			view.showMessage("음식 창고에 음식이 없습니다.");
+			return;
+		}
+	
+		viewFoodInfo();
+	
+		int foodId = view.selectFoodId(mFoodStorage);
+		if (view.askConfirm(">> 해당 메뉴를 삭제하려면 yes를 입력하세요 : ", "yes")) {
+			
+			mFoodStorage.deleteItem(foodId);
+			view.showMessage(">> 해당 메뉴를 삭제했습니다.");
+		}
+
+	}
+	
+	
 	// MovieList에 도서 추가
 	private void addMovie2List() {
 		view.showMessage("새로운 영화를 추가합니다.");
